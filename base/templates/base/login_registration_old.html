@@ -1,0 +1,72 @@
+{% extends 'main.html' %}
+{% load socialaccount %}  
+
+{% block content %}
+
+{% if page == 'login' %}
+<div class="layout__box">
+    <div class="layout__boxHeader">
+        <div class="layout__boxTitle">
+            <h3>Login</h3>
+        </div>
+    </div>
+    <div class="layout__body">
+        <form method="post" action="" class="form">
+            {% csrf_token %}
+            <div class="form__group">
+                <label>Username</label>
+                <input type="text" name="username" placeholder="Enter username" class="form-control"/>
+            </div>
+            <div class="form__group">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Enter password" class="form-control"/>
+            </div>
+            <div class="form__action">
+                <button type="submit" class="btn btn--main">Login</button>
+            </div>
+        </form>
+
+        <div class="auth__action">
+            <p>Haven't signed up yet?</p>
+            <a href="{% url 'register' %}" class="btn btn--link">Sign Up</a>
+        </div>
+
+        <div class="auth__tagline">
+            <p>Or sign in with:</p>
+            <a href="{% provider_login_url 'google' %}" class="btn btn--dark" style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12.545 10.239v3.821h5.445c-0.712 2.315-2.647 3.972-5.445 3.972-3.332 0-6.033-2.701-6.033-6.032s2.701-6.032 6.033-6.032c1.498 0 2.866 0.549 3.921 1.453l2.814-2.814c-1.784-1.672-4.152-2.695-6.735-2.695-5.521 0-10 4.479-10 10s4.479 10 10 10c8.396 0 10-7.496 10-10 0-0.672-0.067-1.418-0.163-2.149h-9.837z"/>
+                </svg>
+                Sign in with Google
+            </a>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<div class="layout__box">
+    <div class="layout__boxHeader">
+        <div class="layout__boxTitle">
+            <h3>Register</h3>
+        </div>
+    </div>
+    <div class="layout__body">
+        <form method="post" action="" class="form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="form__action">
+                <button type="submit" class="btn btn--main">Register</button>
+            </div>
+        </form>
+
+        <div class="auth__action">
+            <p>Already signed up?</p>
+            <a href="{% url 'login' %}" class="btn btn--link">Login</a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+
+{% endblock %}

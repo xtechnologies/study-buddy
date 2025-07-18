@@ -1,0 +1,375 @@
+{% extends 'chatbot/base.html' %}
+{% load static %}
+
+{% block title %}StudyBuddy AI{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'styles/style.css' %}" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<div class="layout">
+    <div class="container">
+        <div class="layout__box" style="max-height: 80vh; width: 90vw; max-width: 100rem; margin: 0 auto;">
+            <div class="layout__boxHeader" style="padding: 1rem 1.5rem;">
+                <div class="layout__boxTitle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <h3 style="font-size: 1.6rem;">StudyBuddy AI</h3>
+                </div>
+            </div>
+            
+            <div class="layout__body" style="padding: 1.5rem; display: flex; flex-direction: column; height: calc(70vh - 4rem);">
+                <!-- Chat container with scrollable content -->
+                <div class="chat-container" style="flex: 1; overflow-y: auto; margin-bottom: 1rem;">
+                    <div class="chat-content" id="chat-box">
+                        <div class="chat-welcome" style="padding: 1rem 0; text-align: center;">
+                            <div class="avatar avatar--medium" style="margin: 0 auto;">
+                                <img src="{% static 'images/logo.svg' %}" />
+                            </div>
+                            <h3 style="font-size: 1.5rem; margin: 1rem 0 0.5rem;">Hello! I'm your StudyBuddy</h3>
+                            <p style="font-size: 1.3rem;">How can I help you today?</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <form id="chat-form" style="margin-top: auto; width: 100%;">
+                    {% csrf_token %}
+                    <div class="form__group" style="margin-bottom: 0; position: relative;">
+                        <!-- Voice button (left) -->
+                        <button type="button" id="mic-button" 
+                                style="position: absolute; left: 0.5rem; top: 50%; transform: translateY(-50%); padding: 0.5rem; border: none; background: transparent; color: #fff;">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+
+                        <!-- Input field -->
+                        <input type="text" id="user-input" placeholder="Type your question..." autocomplete="off" required 
+                            style="padding: 0.75rem 3rem 0.75rem 5rem; width: 100%;">
+                        <input type="file" id="file-input" accept=".txt,.pdf,.doc,.docx" 
+                            style="display: none;" />
+                        <label for="file-input" id="upload-button"
+                            style="position: absolute; left: 3rem; top: 50%; transform: translateY(-50%); cursor: pointer;">
+                            <i class="fas fa-paperclip"></i>
+                        </label>
+
+                        <button type="submit" class="btn btn--main" 
+                                style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); padding: 0.5rem; border: none; background: transparent; color: #fff;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="22" y1="2" x2="11" y2="13"/>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .message div {
+        white-space: normal;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        max-width: 100%;
+    }
+
+    .bot-message {
+        overflow-x: auto;
+        padding: 1rem;
+        border-radius: 10px;
+        word-break: break-word;
+    }
+
+    .bot-message ul,
+    .bot-message ol {
+        margin-left: 1.5rem;
+        padding-left: 0;
+    }
+
+    .bot-message code,
+    .bot-message pre {
+        background: rgba(0, 0, 0, 0.15);
+        padding: 0.4rem 0.6rem;
+        border-radius: 4px;
+        display: inline-block;
+        white-space: pre-wrap;
+    }
+
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        overflow-y: scroll;
+        height: 100%;
+        padding-right: 0.5rem;
+    }
+    
+    .chat-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        min-height: min-content;
+        padding: 0.5rem;
+    }
+    
+    .message {
+        padding: 0.8rem 1.2rem;
+        margin: 0.2rem 0;
+        border-radius: 0.8rem;
+        max-width: 70%;
+        font-size: 1.3rem;
+        line-height: 1.4;
+        word-wrap: break-word;
+    }
+    
+    .user-message {
+        background: var(--color-dark-medium);
+        color: var(--color-light);
+        margin-left: auto;
+    }
+    
+    .bot-message {
+        background: var(--color-dark-light);
+        color: var(--color-light);
+        margin-right: auto;
+    }
+    
+    .message-meta {
+        font-size: 1rem;
+        color: var(--color-gray);
+        margin-top: 0.3rem;
+        text-align: right;
+    }
+    
+    .typing-indicator {
+        display: flex;
+        gap: 0.4rem;
+        padding: 0.8rem 1.2rem;
+        align-items: center;
+    }
+    
+    .typing-dot {
+        width: 8px;
+        height: 8px;
+        background-color: var(--color-light);
+        border-radius: 50%;
+        opacity: 0.6;
+        animation: typingAnimation 1.4s infinite ease-in-out;
+    }
+    
+    .typing-dot:nth-child(1) { animation-delay: 0s; }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    
+    @keyframes typingAnimation {
+        0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
+        30% { transform: translateY(-5px); opacity: 1; }
+    }
+    
+    .chat-container::-webkit-scrollbar {
+        width: 10px;
+        height:90%;
+    }
+    
+    .chat-container::-webkit-scrollbar-track {
+        background: var(--color-dark-light);
+        border-radius: 10px;
+    }
+    
+    .chat-container::-webkit-scrollbar-thumb {
+        background-color: var(--color-dark-medium);
+        border-radius: 10px;
+        border: 2px solid var(--color-dark-light);
+    }
+    
+    .chat-container::-webkit-scrollbar-thumb:hover {
+        background-color: var(--color-dark);
+    }
+
+    #mic-button:hover {
+        background-color: rgba(255,255,255,0.1);
+        border-radius: 50%;
+    }
+
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatForm = document.getElementById('chat-form');
+    const userInput = document.getElementById('user-input');
+    const chatBox = document.getElementById('chat-box');
+    const chatContainer = document.querySelector('.chat-container');
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const micButton = document.getElementById('mic-button');
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const fileInput = document.getElementById('file-input');
+
+    fileInput.addEventListener('change', async function () {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        addMessage(`📎 Uploaded file: ${file.name}`, true);
+        showTyping();
+
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("session_id", sessionId);
+        formData.append("csrfmiddlewaretoken", csrfToken);
+
+        try {
+            const response = await fetch("{% url 'chatbot:file_upload_api' %}", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+            hideTyping();
+            addMessage(data.response);
+        } catch (err) {
+            hideTyping();
+            addMessage("❌ Failed to read file. Try again.");
+            console.error("File upload error:", err);
+        }
+    });
+
+    if (!SpeechRecognition) {
+        micButton.disabled = true;
+        micButton.title = "Voice recognition not supported in this browser.";
+    } else {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        micButton.addEventListener('click', () => {
+            recognition.start();
+            micButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        });
+
+        recognition.onresult = function (event) {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById('user-input').value = transcript;
+        };
+
+        recognition.onend = function () {
+            micButton.innerHTML = '<i class="fas fa-microphone"></i>';
+        };
+
+        recognition.onerror = function (event) {
+            console.error('Speech recognition error:', event.error);
+            micButton.innerHTML = '<i class="fas fa-microphone"></i>';
+            alert("Sorry, we couldn't capture your voice. Try again.");
+        };
+    }
+
+    // Generate session ID if it doesn't exist
+    if (!sessionStorage.getItem("chat_session_id")) {
+        sessionStorage.setItem("chat_session_id", crypto.randomUUID());
+    }
+    const sessionId = sessionStorage.getItem("chat_session_id");
+
+    function addMessage(content, isUser = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+        
+        // Create message content container
+        const messageContent = document.createElement('div');
+        if (isUser) {
+            messageContent.textContent = content;
+        } else {
+            messageContent.innerHTML = marked.parse(content);
+        }
+        messageDiv.appendChild(messageContent);
+        
+        // Add timestamp
+        const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const meta = document.createElement('div');
+        meta.className = 'message-meta';
+        meta.textContent = timestamp;
+        messageDiv.appendChild(meta);
+        
+        chatBox.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function showTyping() {
+        const typing = document.createElement('div');
+        typing.className = 'message bot-message typing-indicator';
+        typing.id = 'typing-indicator';
+        typing.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+        chatBox.appendChild(typing);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function hideTyping() {
+        const typing = document.getElementById('typing-indicator');
+        if (typing) typing.remove();
+    }
+
+    async function getAPIResponse(userMessage) {
+        try {
+            const response = await fetch("{% url 'chatbot:chat_api' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    message: userMessage,
+                    session_id: sessionId
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (!data.response) {
+                throw new Error('Invalid response format from server');
+            }
+            
+            return data.response;
+            
+        } catch (error) {
+            console.error('API Error:', error);
+            return "Sorry, I'm having trouble connecting. Please try again later.";
+        }
+    }
+
+    async function handleChatSubmit(e) {
+        e.preventDefault();
+        const message = userInput.value.trim();
+        if (!message) return;
+
+        addMessage(message, true);
+        userInput.value = '';
+        showTyping();
+
+        try {
+            const response = await getAPIResponse(message);
+            hideTyping();
+            addMessage(response);
+        } catch (error) {
+            hideTyping();
+            addMessage("Sorry, something went wrong. Please try again.");
+            console.error('Chat error:', error);
+        }
+    }
+
+    // Initialize chat
+    chatForm.addEventListener('submit', handleChatSubmit);
+    userInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleChatSubmit(e);
+        }
+    });
+});
+</script>
+{% endblock %}

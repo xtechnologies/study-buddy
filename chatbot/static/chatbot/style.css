@@ -1,0 +1,192 @@
+:root {
+    --bg-color: #1e1e1e;
+    --primary: #2196f3;
+    --text: #f5f5f5;
+    --bubble-user: #2c3e50;
+    --bubble-bot: #313131;
+    --input-bg: #2a2a2a;
+    --border: #444;
+    --radius: 16px;
+    --font: 'Segoe UI', sans-serif;
+}
+
+body {
+    background: var(--bg-color);
+    color: var(--text);
+    font-family: var(--font);
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column; /* 🔧 FIXED */
+}
+
+.chat-container {
+    flex: 1; /* 🔧 fills remaining space under navbar */
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-color);
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.chat-box {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+
+.message {
+    max-width: 80%;
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    animation: slideIn 0.2s ease;
+}
+
+.message.user {
+    align-self: flex-end;
+    background: var(--bubble-user);
+}
+
+.message.bot {
+    align-self: flex-start;
+    background: var(--bubble-bot);
+}
+
+.chat-input-area {
+    display: flex;
+    padding: 12px 16px;
+    background: var(--bg-color);
+    border-top: 1px solid var(--border);
+}
+
+.chat-input {
+    flex: 1;
+    padding: 12px 16px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-size: 1rem;
+    outline: none;
+}
+
+.send-btn {
+    background: var(--primary);
+    border: none;
+    color: white;
+    padding: 0 20px;
+    margin-left: 10px;
+    border-radius: var(--radius);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.send-btn:hover {
+    background: #1769aa;
+}
+
+.typing-indicator {
+    display: inline-block;
+    padding: 10px 16px;
+    background: var(--bubble-bot);
+    border-radius: var(--radius);
+    width: fit-content;
+    animation: fadeIn 0.3s ease;
+}
+
+.typing-indicator span {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin: 0 2px;
+    background: #ccc;
+    border-radius: 50%;
+    animation: bounce 1.2s infinite ease-in-out both;
+}
+
+.typing-indicator span:nth-child(1) {
+    animation-delay: 0s;
+}
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.navbar {
+    background-color: #2b2b2b;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-logo {
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: var(--text);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 24px;
+}
+
+.nav-links li a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.nav-links li a i {
+    font-size: 1rem;
+}
+
+.nav-links li a:hover {
+    color: var(--primary);
+}

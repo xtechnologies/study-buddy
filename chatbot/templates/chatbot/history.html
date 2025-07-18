@@ -1,0 +1,95 @@
+{% extends 'chatbot/base.html' %}
+{% load static %}
+
+{% block title %}Chat History - StudyBuddy AI{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'styles/style.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<div class="layout">
+  <div class="container">
+    <div class="layout__box" style="width: 90vw; max-width: 100rem; margin: 0 auto; min-height: 60vh;">
+      <div class="layout__boxHeader" style="padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+        <div class="layout__boxTitle" style="display: flex; align-items: center;">
+          <i class="fas fa-clock-rotate-left" style="margin-right: 0.5rem;"></i>
+          <h3 style="font-size: 1.6rem;">Chat History</h3>
+        </div>
+        <a href="{% url 'chatbot:chat_page' %}" class="btn btn--main" style="padding: 0.4rem 0.8rem; font-size: 1.2rem; border-radius: 0.5rem;">
+          <i class="fas fa-arrow-left" style="margin-right: 0.3rem;"></i> Back to Chat
+        </a>
+      </div>
+
+      <div class="layout__body" style="padding: 1.5rem;">
+        {% if messages %}
+          <div class="scroll" style="max-height: 60vh; overflow-y: auto; padding-right: 0.5rem;">
+            {% for chat in messages %}
+              <div style="margin-bottom: 2rem; padding: 1rem; background: var(--color-dark); border-radius: 0.5rem;">
+                <div class="message user-message">
+                  <strong>You:</strong> {{ chat.user_message }}
+                </div>
+                <div class="message bot-message">
+                  <strong>StudyBuddy:</strong> {{ chat.ai_response }}
+                </div>
+                <p class="message-meta">
+                  <i class="fas fa-clock" style="margin-right: 0.3rem;"></i>
+                  {{ chat.timestamp|date:"D, M d Y H:i" }}
+                </p>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div style="text-align: center; padding: 2rem;">
+            <i class="fas fa-comment-slash" style="font-size: 3rem; color: var(--color-gray); margin-bottom: 1rem;"></i>
+            <p style="font-size: 1.2rem;">No chat history found</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .scroll::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .scroll::-webkit-scrollbar-track {
+    background: var(--color-dark-light);
+    border-radius: 10px;
+  }
+  
+  .scroll::-webkit-scrollbar-thumb {
+    background-color: var(--color-dark-medium);
+    border-radius: 10px;
+  }
+
+  .message {
+    padding: 0.8rem 1.2rem;
+    border-radius: 0.8rem;
+    max-width: 85%;
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    word-wrap: break-word;
+  }
+
+  .user-message {
+    background: var(--color-dark-medium);
+    color: var(--color-light);
+    margin-left: auto;
+  }
+
+  .bot-message {
+    background: var(--color-dark-light);
+    color: var(--color-light);
+    margin-right: auto;
+  }
+
+  .message-meta {
+    font-size: 1rem;
+    color: var(--color-gray);
+    margin-top: 0.5rem;
+    text-align: right;
+  }
+</style>
+{% endblock %}

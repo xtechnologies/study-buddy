@@ -1,0 +1,65 @@
+{% load static %}
+<header class="header header--loggedIn">
+  <div class="container">
+    <a href="{% url 'home' %}" class="header__logo">
+      <img src="{% static 'images/logo.svg' %}" />
+      <h1>StudyBuddy</h1>
+    </a>
+
+    <form class="header__search" method="get" action="{% url 'home' %}">
+      <label>
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+          <path d="M32 30.586l-10.845-10.845c1.771-2.092 2.845-4.791 2.845-7.741 0-6.617-5.383-12-12-12s-12 5.383-12 12c0 6.617 5.383 12 12 12 2.949 0 5.649-1.074 7.741-2.845l10.845 10.845 1.414-1.414zM12 22c-5.514 0-10-4.486-10-10s4.486-10 10-10c5.514 0 10 4.486 10 10s-4.486 10-10 10z"></path>
+        </svg>
+        <input name="q" placeholder="Search for rooms..." />
+      </label>
+    </form>
+
+    <nav class="header__menu" style="display: flex; align-items: center; gap: 1rem;">
+      <!-- ChatBot button aligned horizontally -->
+      <a href="{% url 'chatbot:chat_page' %}" class="btn btn--small btn--primary">
+        <i class="fas fa-comments"></i> Ask the ChatBot
+      </a>
+
+      {% if request.user.is_authenticated %}
+      <div class="header__user" style="display: flex; align-items: center; gap: 0.5rem;">
+        <a href="{% url 'update-user' %}" style="display: flex; align-items: center; gap: 0.5rem;">
+          <div class="avatar avatar--medium active">
+            {% if request.user.profile.profile_pic %}
+              <img src="{{ request.user.profile.profile_pic.url }}" />
+            {% else %}
+              <img src="{% static 'images/avatar.svg' %}" />
+            {% endif %}
+          </div>
+          <div>
+            <p>@{{ request.user.username }}</p>
+            <span style="font-size: 12px;">{{ request.user.email }}</span>
+          </div>
+        </a>
+        <button class="dropdown-button" id="dropdownButton">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+            <path d="M16 21l-13-13h-3l16 16 16-16h-3l-13 13z"></path>
+          </svg>
+        </button>
+      </div>
+      {% else %}
+      <a href="{% url 'login' %}" style="display: flex; align-items: center; gap: 0.5rem;">
+        <img src="{% static 'images/avatar.svg' %}" />
+        <p>Login</p>
+      </a>
+      {% endif %}
+
+      <div class="dropdown-menu" id="dropdownMenu">
+        <a href="{% url 'chatbot:chat_history' %}" class="dropdown-link">
+          <i class="fas fa-clock-rotate-left"></i> History
+        </a>
+        <a href="{% url 'update-user' %}" class="dropdown-link">
+          <i class="fas fa-user-circle"></i> Profile/Settings
+        </a>
+        <a href="{% url 'logout' %}" class="dropdown-link">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </div>
+    </nav>
+  </div>
+</header>
